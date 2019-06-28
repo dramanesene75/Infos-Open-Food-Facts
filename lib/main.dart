@@ -38,7 +38,7 @@ class _MyCustomFormState extends State<MyCustomForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Enter BarCode'),
+        title: Text('Enter BarCode or product name'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -47,8 +47,8 @@ class _MyCustomFormState extends State<MyCustomForm> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        // When the user presses the button, show an alert dialog containing
-        // the text that the user has entered into the text field.
+        // When the user presses the button, open a new page all
+        // needed data linked to the product.
         onPressed: () {
           Navigator.of(context).push(
               MaterialPageRoute<void>(

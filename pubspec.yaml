@@ -43,6 +43,11 @@ flutter:
   uses-material-design: true
   assets:
   - images/cristalline.jpg
+  - images/a.png
+  - images/b.png
+  - images/c.png
+  - images/d.png
+  - images/e.png
   # To add assets to your application, add an assets section, like this:
   # assets:
   #  - images/a_dot_burr.jpeg

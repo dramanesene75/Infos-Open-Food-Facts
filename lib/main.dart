@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
 import 'ProductDetails.dart';
 import 'BarCode.dart';
 void main() => runApp(MyApp());
@@ -36,6 +37,10 @@ class _MyCustomFormState extends State<MyCustomForm> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
+      statusBarColor: Color(0xFF00889B),
+    ));
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Enter BarCode or product name'),

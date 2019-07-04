@@ -111,11 +111,14 @@ class ProductDetails extends StatefulWidget {
 
 class _ProductDetailsFormState extends State<ProductDetails> {
   bool _allData = false;
-  double _height = 450;
+  double _height = 510;
   double _positionText = 0.85;
   double _positionArrow = 0.93;
+  MediaQueryData queryData;
   @override
   Widget build(BuildContext context) {
+    double _widthScreen = MediaQuery.of(context).size.width;
+    double _heigthScreen = MediaQuery.of(context).size.height;
     final barCode = Provider.of<BarCode>(context);
     String product = barCode.getBarCode();
     final Future<Post> post = fetchPost(product) ;
@@ -145,7 +148,7 @@ class _ProductDetailsFormState extends State<ProductDetails> {
                                   decoration: new BoxDecoration(color: Colors.white) ,
                                   child: ClipPath(
                                     child: Image.network(
-                                        snapshot.data.picture,width : 600,height: _height,fit: BoxFit.cover),
+                                        snapshot.data.picture,width : _widthScreen,height: _height,fit: BoxFit.cover),
                                     clipper: WaveArrow(),
                               ),
                                 ),
@@ -153,27 +156,27 @@ class _ProductDetailsFormState extends State<ProductDetails> {
               ),
                               Container(
                                   height: _height,
-                                  width: 600.0,
+                                  width: _widthScreen,
                                   child: Align(
                                     alignment: Alignment(-.8,_positionText),
                                     child: Text("INFORMATIONS",
-                                      style: TextStyle(color: Colors.blueAccent, fontSize: 22),
+                                      style: TextStyle(color: Color(0xFF00889B), fontSize: 22),
                                     ),
                                   ),
                                 ),
                               Container(
                                 height: _height,
-                                width: 600.0,
+                                width: _widthScreen,
                                 child: Align(
                                   alignment: Alignment(-.83,0.95),
                                   child: Text("DU PRODUIT",
-                                    style: TextStyle(color: Colors.blueAccent, fontSize: 22),
+                                    style: TextStyle(color: Color(0xFF00889B), fontSize: 22),
                                   ),
                                 ),
                               ),
                                 Container(
                                   height: _height,
-                                  width: 600.0,
+                                  width: _widthScreen,
                                   child: Align(
                                   alignment: Alignment(0.65,_positionArrow),
               child:GestureDetector(
@@ -182,18 +185,18 @@ class _ProductDetailsFormState extends State<ProductDetails> {
               _allData = !_allData;
               print(snapshot.data.picture);
               if(_allData){
-              _height = 100;
+              _height = 0.15*_heigthScreen;
               _positionText=0.25;
               _positionArrow=0.5;
               }
               else{
-              _height = 480;
+              _height = 0.75*_heigthScreen;
               _positionText=0.85;
               _positionArrow=0.93;
               }
               });
               },
-              child: Icon(_allData ? Icons.arrow_downward : Icons.arrow_upward, color: Colors.blue),
+              child: Icon(_allData ? Icons.arrow_downward : Icons.arrow_upward, color: Color(0xFF00889B)),
               ),
                                   ),
                                 )
@@ -204,14 +207,13 @@ class _ProductDetailsFormState extends State<ProductDetails> {
 
 
                           ListTile(
-                            title: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
+                            title: Stack(
                               children: [
                                 Text("Nom du produit", style: TextStyle(
                                     fontWeight: FontWeight.bold),
                                 ),
                                 Padding(
-                                    padding: EdgeInsets.only(left: 26.0),
+                                    padding: EdgeInsets.only(left: _widthScreen/3),
                                     child: Text(snapshot.data.productName)
                                 ),
                               ],
@@ -219,108 +221,106 @@ class _ProductDetailsFormState extends State<ProductDetails> {
                           ),
 
                            ListTile(
-                            title: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
+                            title: Stack(
                               children: [
                                 Text("Nutrition", style: TextStyle(
                                     fontWeight: FontWeight.bold),
                                 ),
                              Padding(
-                               padding: EdgeInsets.only(left: 73.0),
-                               child:Text(snapshot.data.nutritionGrade.toUpperCase()),
+                               padding: EdgeInsets.only(left: _widthScreen/3),
+                               child:Image.asset('images/'+snapshot.data.nutritionGrade.toLowerCase()+'.png'),
                              ),
                               ],
                             ),
                           ),ListTile(
-                        title: Row(
-
-                          mainAxisAlignment: MainAxisAlignment.start,
+                        title: Stack(
                           children: [
-                            Text("Ingrédients", style: TextStyle(
-                                fontWeight: FontWeight.bold),
+                            Text(
+                              "Ingrédients",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
                             ),
                             Padding(
-                              padding: EdgeInsets.only(left: 54.0),
-                              child:Text(snapshot.data.ingredients,overflow: TextOverflow.fade ,maxLines: 10,),
-                            ),                        ],
-                        ),
-
-                      ),
+                              padding: EdgeInsets.only(left: _widthScreen/3),
+                              child: Text(
+                                  snapshot.data.ingredients,
+                                  maxLines: 3 ,
+                                  style: TextStyle(fontSize: 16.0)
+                              ),
+                            ),
+                          ]
+                          ),
+                          ),
 
                 ListTile(
-                        title: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
+                        title: Stack(
                           children: [
                             Text("Nom générique", style: TextStyle(
                                 fontWeight: FontWeight.bold),
                             ),
+
                             Padding(
-                              padding: EdgeInsets.only(left: 24.0),
+                              padding: EdgeInsets.only(left: _widthScreen/3),
                               child:Text(snapshot.data.genericName),
                             ),
                           ],
                         ),
                       ),ListTile(
-                        title: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
+                        title: Stack(
                           children: [
                             Text("Marque", style: TextStyle(
                                 fontWeight: FontWeight.bold),
                             ),
                             Padding(
-                              padding: EdgeInsets.only(left: 81.0),
+                              padding: EdgeInsets.only(left: _widthScreen/3),
                               child:Text(snapshot.data.brands),
                             ),
                           ],
                         ),
                       ),ListTile(
-                        title: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
+                        title: Stack(
                           children: [
                             Text("Origine", style: TextStyle(
                                 fontWeight: FontWeight.bold),
                             ),
                             Padding(
-                              padding: EdgeInsets.only(left: 84.0),
+                              padding: EdgeInsets.only(left: _widthScreen/3),
                               child:Text(snapshot.data.origins, overflow: TextOverflow.ellipsis,softWrap: true,),
                             ),
                           ],
                         ),
                       ),ListTile(
-                        title: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
+                        title: Stack(
                           children: [
                             Text("Labels", style: TextStyle(
                                 fontWeight: FontWeight.bold),
                             ),
                             Padding(
-                              padding: EdgeInsets.only(left: 90.0),
+                              padding: EdgeInsets.only(left: _widthScreen/3),
                               child:Text(snapshot.data.labels),
                             ),
                           ],
                         ),
                       ),ListTile(
-                        title: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
+                        title: Stack(
                           children: [
                             Text("Traces", style: TextStyle(
                                 fontWeight: FontWeight.bold),
                             ),
                             Padding(
-                              padding: EdgeInsets.only(left: 88.0),
+                              padding: EdgeInsets.only(left: _widthScreen/3),
                               child:Text(snapshot.data.traces),
                             ),
                           ],
                         ),
                       ),ListTile(
-                        title: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
+                        title: Stack(
+
                           children: [
                             Text("Allergenes", style: TextStyle(
                                 fontWeight: FontWeight.bold),
                             ),
                             Padding(
-                              padding: EdgeInsets.only(left: 58.0),
+                              padding: EdgeInsets.only(left:_widthScreen/3),
                               child:Text(snapshot.data.allergens),
                             ),
                           ],

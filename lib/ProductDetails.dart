@@ -103,22 +103,30 @@ class Post {
     }
 }
 
-// Define a custom Form widget.
 class ProductDetails extends StatefulWidget {
   @override
   _ProductDetailsFormState createState() => _ProductDetailsFormState();
 }
 
 class _ProductDetailsFormState extends State<ProductDetails> {
+
   bool _allData = false;
   double _height = 510;
   double _positionText = 0.85;
   double _positionArrow = 0.93;
+  int index = 0;
   MediaQueryData queryData;
+  DragStartDetails startHorizontalDragDetails;
+  DragUpdateDetails updateHorizontalDragDetails;
+
   @override
   Widget build(BuildContext context) {
+    List pictures = [];
+    pictures.add('https://m-naturellement.com/98-large_default/eau-cristalline-50cl.jpg');
     double _widthScreen = MediaQuery.of(context).size.width;
-    double _heigthScreen = MediaQuery.of(context).size.height;
+    double _heightScreen = MediaQuery.of(context).size.height;
+    double _width = _widthScreen;
+
     final barCode = Provider.of<BarCode>(context);
     String product = barCode.getBarCode();
     final Future<Post> post = fetchPost(product) ;
@@ -135,136 +143,214 @@ class _ProductDetailsFormState extends State<ProductDetails> {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 if(snapshot.data.found) {
+                  pictures.add(snapshot.data.picture);
                   return
-                    Container(
+                    AnimatedContainer(
+                      duration:Duration(milliseconds:1000),
                       decoration: new BoxDecoration(color: Colors.grey[300]) ,
-                      child: Column(
+                      child:
+                      GestureDetector(
+                        onHorizontalDragStart: (DragStartDetails details) {
+                          startHorizontalDragDetails = details;
+                        },
+                        onHorizontalDragUpdate: (DragUpdateDetails details) {
+                          updateHorizontalDragDetails = details;
+                        },
+
+                        onHorizontalDragEnd : (dragDetails) {
+                          if (updateHorizontalDragDetails.globalPosition.dx >
+                              startHorizontalDragDetails.globalPosition.dx) {
+                            setState(() {
+                              index = 0;
+                            });
+                          }
+                          else {
+                            setState(() {
+                              index = 1;
+                            });
+                          }
+                          double dy= updateHorizontalDragDetails.globalPosition.dy -
+                              startHorizontalDragDetails.globalPosition.dy;
+                          print(dy);
+                          setState(() {
+                            if(dy < 0 ) {
+                              _allData = true;
+                              _height = 0.25*_heightScreen;
+                              _positionText=0.55;
+                              _positionArrow=0.75;
+                            }
+                            else{
+                              _allData = false;
+
+                              _height = 0.75*_heightScreen;
+                              _positionText=0.85;
+                              _positionArrow=0.93;
+                            }
+
+                          });
+
+                        },
+
+                        child: Column(
                         children: <Widget>[
-                          snapshot.data.picture != '' ?
-                              Stack(
-                          children: <Widget>[
-                              ClipPath(
-                                child : Container(
-                                  decoration: new BoxDecoration(color: Colors.white) ,
-                                  child: ClipPath(
-                                    child: Image.network(
-                                        snapshot.data.picture,width : _widthScreen,height: _height,fit: BoxFit.cover),
-                                    clipper: WaveArrow(),
-                              ),
-                                ),
-                                clipper: WaveClipper(),
-              ),
-                              Container(
-                                  height: _height,
-                                  width: _widthScreen,
-                                  child: Align(
-                                    alignment: Alignment(-.8,_positionText),
-                                    child: Text("INFORMATIONS",
-                                      style: TextStyle(color: Color(0xFF00889B), fontSize: 22),
-                                    ),
-                                  ),
-                                ),
-                              Container(
+
+                          Stack(
+                            children: <Widget>[
+                        ClipPath(
+                          child : Container(
+                            decoration: new BoxDecoration(color: Colors.white) ,
+                            child: ClipPath(
+                        child:
+                              AnimatedContainer(
+                                duration:Duration(milliseconds: 1000),
+                                width : _width,
                                 height: _height,
-                                width: _widthScreen,
-                                child: Align(
-                                  alignment: Alignment(-.83,0.95),
-                                  child: Text("DU PRODUIT",
-                                    style: TextStyle(color: Color(0xFF00889B), fontSize: 22),
-                                  ),
-                                ),
-                              ),
-                                Container(
-                                  height: _height,
-                                  width: _widthScreen,
-                                  child: Align(
-                                  alignment: Alignment(0.65,_positionArrow),
-              child:GestureDetector(
-                                  onTap: () {
-              setState(() {
-              _allData = !_allData;
-              print(snapshot.data.picture);
-              if(_allData){
-              _height = 0.15*_heigthScreen;
-              _positionText=0.25;
-              _positionArrow=0.5;
-              }
-              else{
-              _height = 0.75*_heigthScreen;
-              _positionText=0.85;
-              _positionArrow=0.93;
-              }
-              });
-              },
-              child: Icon(_allData ? Icons.arrow_downward : Icons.arrow_upward, color: Color(0xFF00889B)),
-              ),
-                                  ),
-                                )
-                        ],
-                      )
-                      :Text('No picture') ,
-
-
-
-                          ListTile(
-                            title: Stack(
-                              children: [
-                                Text("Nom du produit", style: TextStyle(
-                                    fontWeight: FontWeight.bold),
-                                ),
-                                Padding(
-                                    padding: EdgeInsets.only(left: _widthScreen/3),
-                                    child: Text(snapshot.data.productName)
-                                ),
-                              ],
+                                child:  snapshot.data.picture != ''
+                                    ? Image.network(
+                                    pictures[index],fit: BoxFit.cover)
+                                    : Image.asset('images/no-img.png'),
                             ),
+                                clipper: WaveArrow(),
+                                  ),
                           ),
 
-                           ListTile(
-                            title: Stack(
-                              children: [
-                                Text("Nutrition", style: TextStyle(
-                                    fontWeight: FontWeight.bold),
-                                ),
-                             Padding(
-                               padding: EdgeInsets.only(left: _widthScreen/3),
-                               child:Image.asset('images/'+snapshot.data.nutritionGrade.toLowerCase()+'.png'),
-                             ),
-                              ],
-                            ),
-                          ),ListTile(
-                        title: Stack(
-                          children: [
-                            Text(
-                              "Ingrédients",
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(left: _widthScreen/3),
-                              child: Text(
-                                  snapshot.data.ingredients,
-                                  maxLines: 3 ,
-                                  style: TextStyle(fontSize: 16.0)
+
+                            clipper: WaveClipper(),
+                                          ),
+
+                            AnimatedContainer(
+                                                            duration:Duration(milliseconds:1000),
+                                                            height: _height,
+                                                              width: _widthScreen,
+                                                              child: Align(
+                                                                alignment: Alignment(-.8,_positionText),
+                                                                child: Text("INFORMATIONS",
+                                                                  style: TextStyle(color: Color(0xFF00889B), fontSize: 22),
+                                                                ),
+                                                              ),
+                                                            ),
+                            AnimatedContainer(
+                                                            duration:Duration(milliseconds:1000),
+                                                            height: _height,
+                                                            width: _widthScreen,
+                                                            child: Align(
+                                                              alignment: Alignment(-.83,0.95),
+                                                              child: Text("DU PRODUIT",
+                                                                style: TextStyle(color: Color(0xFF00889B), fontSize: 22),
+                                                              ),
+                                                            ),
+                                                          ),
+                            AnimatedContainer(
+                                                              duration:Duration(milliseconds:1000),
+                                                              height: _height,
+                                                              width: _widthScreen,
+                                                              child: Align(
+                                                              alignment: Alignment(0.65,_positionArrow),
+                                        child:GestureDetector(
+                                                              onTap: () {
+                                        setState(() {
+                                        _allData = !_allData;
+                                        if(_allData){
+                                        _height = 0.25*_heightScreen;
+                                        _positionText=0.55;
+                                        _positionArrow=0.75;
+                                        }
+                                        else{
+                                        _height = 0.75*_heightScreen;
+                                        _positionText=0.85;
+                                        _positionArrow=0.93;
+                                        }
+                                        });
+                                        },
+                                        child: Icon(_allData ? Icons.arrow_downward : Icons.arrow_upward, color: Color(0xFF00889B)),
+                                        ),
+                                                              ),
+                                                            )
+                                                  ],
+                                                ),
+                          AnimatedContainer(
+                            duration:Duration(milliseconds:1000),
+                            height: _heightScreen/15,
+                            child: ListTile(
+                              title: Stack(
+                                children: [
+                                  Text("Nom du produit", style: TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                  ),
+                                  Padding(
+                                      padding: EdgeInsets.only(left: _widthScreen/3),
+                                      child: Text(snapshot.data.productName)
+                                  ),
+                                ],
                               ),
                             ),
+                          ),
+                           Container(
+                             height: _heightScreen/15,
+                             child: ListTile(
+                              title: Stack(
+                                children: [
+                                  Text("Nutrition", style: TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                  ),
+                               Padding(
+                                 padding: EdgeInsets.only(left: _widthScreen/3),
+                                 child:Image.asset('images/'+snapshot.data.nutritionGrade.toLowerCase()+'.png', width: 24,height: 24,),
+                               ),
+                                ],
+                              ),
+                          ),
+                           ),
+                           Container(
+                             height: _heightScreen/15,
+                             child: ListTile(
+                               contentPadding : EdgeInsets.symmetric(horizontal:16, vertical: -28.0),
+
+                               title: Stack(
+                          children: [
+                              Text(
+                                "Ingrédients",
+                                style: TextStyle(height : 0.5,fontWeight: FontWeight.bold, fontSize: 16.0),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(left: _widthScreen/3),
+                                child: Text(
+                                    snapshot.data.ingredients,
+                                    maxLines: 3 ,
+                                    style: TextStyle(fontSize: 16.0,                                  height : 0.5,
+                                    )
+                                ),
+                              ),
                           ]
                           ),
                           ),
+                           ),
 
-                ListTile(
+                          _allData ?
+                              Container(
+                            height: _heightScreen/15,
+                            child:
+                            ListTile(
                         title: Stack(
-                          children: [
-                            Text("Nom générique", style: TextStyle(
-                                fontWeight: FontWeight.bold),
-                            ),
+                            children: [
+                              Text("Nom générique", style: TextStyle(
+                                  fontWeight: FontWeight.bold),
+                              ),
 
-                            Padding(
-                              padding: EdgeInsets.only(left: _widthScreen/3),
-                              child:Text(snapshot.data.genericName),
-                            ),
-                          ],
+                              Padding(
+                                padding: EdgeInsets.only(left: _widthScreen/3),
+                                child:Text(snapshot.data.genericName),
+                              ),
+                            ],
                         ),
-                      ),ListTile(
+                      ),
+              ):Container(),
+
+                          _allData ?
+                              Container(
+                            height: _heightScreen/15,
+
+                            child:ListTile(
                         title: Stack(
                           children: [
                             Text("Marque", style: TextStyle(
@@ -276,7 +362,12 @@ class _ProductDetailsFormState extends State<ProductDetails> {
                             ),
                           ],
                         ),
-                      ),ListTile(
+                      ),
+                          ):Container(),
+                          _allData ?
+                              Container(
+                                height: _heightScreen/15,
+                                child:ListTile(
                         title: Stack(
                           children: [
                             Text("Origine", style: TextStyle(
@@ -288,7 +379,12 @@ class _ProductDetailsFormState extends State<ProductDetails> {
                             ),
                           ],
                         ),
-                      ),ListTile(
+                      ),):Container(),
+                          _allData ?
+                              Container(
+                            height: _heightScreen/15,
+
+                            child:ListTile(
                         title: Stack(
                           children: [
                             Text("Labels", style: TextStyle(
@@ -300,7 +396,11 @@ class _ProductDetailsFormState extends State<ProductDetails> {
                             ),
                           ],
                         ),
-                      ),ListTile(
+                      ),):Container(),
+                          _allData ?
+                              Container(
+                            height: _heightScreen/15,
+                            child:ListTile(
                         title: Stack(
                           children: [
                             Text("Traces", style: TextStyle(
@@ -312,7 +412,8 @@ class _ProductDetailsFormState extends State<ProductDetails> {
                             ),
                           ],
                         ),
-                      ),ListTile(
+                      ),):Container(),
+                          _allData ?ListTile(
                         title: Stack(
 
                           children: [
@@ -325,12 +426,12 @@ class _ProductDetailsFormState extends State<ProductDetails> {
                             ),
                           ],
                         ),
-                      ),
+                      ):Container(),
 
                         ],
                       ),
+                    ),
                     );
-
                 }
               else
                 return Text("Product no found");
